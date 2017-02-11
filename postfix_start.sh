@@ -29,8 +29,14 @@ read -p "Relay host (ip-address or host-name): " RELAYHOST
 read -p "Username for Relayhost: " RELAYUSER
 read -p "Password for ${RELAYUSER}:" RELAYUSERPASSWORD
 
-#docker rm openvpn
-#rm openvpn/openvpn/.alreadysetup
+read -p "Fixed ip-address for postfix server: " FIXED_IP_ADDRESS
+if [ -z $FIXED_IP_ADDRESS ]; then
+    FIXED_IP_ADDRESS=
+else
+    FIXED_IP_ADDRESS=--ip=${FIXED_IP_ADDRESS}
+fi
+
+#docker rm postfix
 docker run \
 	-h postfix \
 	-e LOCALNETWORK="${LOCALNETWORK_IP}/${MASK_LEN}" \
@@ -42,6 +48,7 @@ docker run \
 	--name postfix \
 	-h postfix \
 	${CUSTOMNETWORKNAME} \
+	${FIXED_IP_ADDRESS} \
 	-p 25:25 \
 	-d tgiesela/postfix:v0.1
 
